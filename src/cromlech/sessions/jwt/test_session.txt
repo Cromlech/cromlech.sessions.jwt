@@ -88,3 +88,33 @@ appear in the history :
     '200 OK'
     >>> result.body
     b'/foo, /bar, /baz'
+
+
+Lower level analysis
+--------------------
+
+The cookie contains our JWT, that is the encoded and signed
+representation of our session. Its name was manually set at the
+beggining of the tests. Let's analyse it :
+
+    >>> wsgi_app.cookies
+    {'my_cookie_name': '...'}
+
+Let's manually unpile this, to understand what's going on :
+
+    >>> cookie = wsgi_app.cookies['my_cookie_name']
+    >>> sorted(session_wrapper.check_token(cookie).keys())
+    ['exp', 'uid', 'visited']
+
+We can see that our session also has metadatas : the `uid` that is the
+unique identifier of the session and an `exp` property that is the
+timestamp representing the time boundaries of the token validity.
+
+Provided a wrong value, the `check_token` method will fail :
+
+    >>> with pytest.raises(ValueError) as invalid:
+    ...     session_wrapper.check_token('MyCorruptedToken')
+
+    >>> invalid.value
+    ValueError('Token format unrecognized',)
+
