@@ -12,10 +12,12 @@ install_requires = [
     'setuptools',
     'cromlech.jwt',
     'biscuits',
-    ]
+]
 
 tests_require = [
-    ]
+    'WebTest',
+]
+
 
 setup(name=name,
       version=version,

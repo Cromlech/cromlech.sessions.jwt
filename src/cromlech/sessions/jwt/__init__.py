@@ -6,6 +6,11 @@ from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler
 
 
+load_key_file = JWTHandler.load_key_file
+load_key_string = JWTHandler.load_key_string
+generate_key = JWTHandler.generate_key
+
+
 class JWTCookieSession(JWTService):
 
     def __init__(self, key, lifetime, cookie_name="jwt", environ_key="session"):
@@ -24,7 +29,7 @@ class JWTCookieSession(JWTService):
                 return session_data
         return {}
 
-    def wrapper(self, app):
+    def __call__(self, app):
         @wraps(app)
         def jwt_session_wrapper(environ, start_response):
 
@@ -44,3 +49,7 @@ class JWTCookieSession(JWTService):
             environ[self.environ_key] = session
             return app(environ, session_start_response)
         return jwt_session_wrapper
+
+
+__all__ = (
+    'load_key_file', 'load_key_string', 'generate_key', 'JWTCookieSession')
