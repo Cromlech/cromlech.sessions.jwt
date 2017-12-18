@@ -3,10 +3,10 @@ JWT Key
 
 The JWT secret key is usually generated programmatically and stored in
 a file. The `cromlech.jwt` package contains all the helpers to handle
-the creation and loading or said key. See the
-`cromlech.jwt`documentation for more info.
+the creation and loading or said key in a JSON format. See the
+`cromlech.jwt`documentation and tests for more info.
 
-In order to run our test, we hard code the JWT key right here :
+In order to run our test, we hard code the JWT key JSON string right here :
 
   >>> from cromlech.sessions.jwt import load_key_string
 
