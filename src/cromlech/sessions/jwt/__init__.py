@@ -29,6 +29,10 @@ class JWTCookieSession(JWTService):
                 return session_data
         return {}
 
+    def check_cookie_size(self, value, maxsize=4096):
+        if len(value) > maxsize:
+            raise ValueError('Cookie exceeds the %i bytes limit' % maxsize)
+
     def __call__(self, app):
         @wraps(app)
         def jwt_session_wrapper(environ, start_response):
@@ -42,7 +46,9 @@ class JWTCookieSession(JWTService):
                 cookie = Cookie(
                     name=self.cookie_name, value=token, path=path,
                     domain=domain, expires=expires)
-                headers.append(('Set-Cookie', str(cookie)))
+                cookie_value = str(cookie)
+                self.check_cookie_size(cookie_value)
+                headers.append(('Set-Cookie', cookie_value))
                 return start_response(status, headers, exc_info)
 
             session = self.extract_session(environ)

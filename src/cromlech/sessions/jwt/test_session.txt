@@ -118,3 +118,26 @@ Provided a wrong value, the `check_token` method will fail :
     >>> invalid.value
     ValueError('Token format unrecognized',)
 
+
+Cookie size
+-----------
+
+A cookie is not a limiteless storage. The JWT session cookie should be
+used for small and limited sessions. It's recommanded when you need to
+save the user id and user-related information. It might be too limited
+for large uses like online cart for e-shops or other heavilyy
+sessionned applications. The middleware will raise an error if the
+cookie overflows :
+
+    >>> def overflowing_app(environ, start_response):
+    ...     session = environ['my_session']
+    ...     session['data'] = 'Some heavy load' * 1000
+    ...     start_response('200 OK', [('Content-type', 'text/plain')])
+    ...     return [b', '.join((v.encode('utf-8') for v in visited))]
+
+    >>> wsgi_app = TestApp(session_wrapper(overflowing_app))
+    >>> with pytest.raises(ValueError) as invalid:
+    ...     wsgi_app.get('/')
+
+    >>> invalid.value
+    ValueError('Cookie exceeds the 4096 bytes limit',)
