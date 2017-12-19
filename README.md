@@ -1,6 +1,7 @@
 cromlech.sessions.jwt
-#####################
+======
 
+ 
 This packaged provides HTTP server side sessions using JWT and Cookies.
 
 JWT is  way of encrypting a json file, so that it can be used for secure communications. 
