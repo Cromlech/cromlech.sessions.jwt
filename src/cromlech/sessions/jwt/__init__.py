@@ -1,14 +1,27 @@
 # -*- coding: utf-8 -*-
 
+import os
 from functools import wraps
 from biscuits import parse, Cookie
 from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler
 
 
-load_key_file = JWTHandler.load_key_file
-load_key_string = JWTHandler.load_key_string
-generate_key = JWTHandler.generate_key
+def key_from_file(path, create=True):
+    fullpath = os.path.abspath(path)
+    if not os.path.isfile(fullpath):
+        if create:
+            key = JWTHandler.generate_key()
+            with open(fullpath, 'w+', encoding="utf-8") as keyfile:
+                keyfile.write(dump_key(key))
+            return key
+        else:
+            raise OSError('Key file could not be found.')
+    else:
+        with open(fullpath, 'r') as fd:
+            key_data = fd.read()
+            key = JWTHandler.load_key(key_data)
+    return key
 
 
 class JWTCookieSession(JWTService):
