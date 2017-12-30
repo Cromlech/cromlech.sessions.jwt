@@ -8,10 +8,10 @@ the creation and loading or said key in a JSON format. See the
 
 In order to run our test, we hard code the JWT key JSON string right here :
 
-  >>> from cromlech.sessions.jwt import load_key_string
+  >>> from cromlech.sessions.jwt import load_key
 
   >>> jk = '{"k":"H9TCJTNhZu9kvISfNmb0eATfCDbp7F92LxnBPK_VUhc","kty":"oct"}'
-  >>> key = load_key_string(jk)
+  >>> key = load_key(jk)
   >>> key
   <jwcrypto.jwk.JWK object at ...>
 

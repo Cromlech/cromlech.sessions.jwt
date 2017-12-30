@@ -1,0 +1,40 @@
+Loading and dumping the jwt key
+===============================
+
+  >>> from cromlech.sessions.jwt import key_from_file
+
+  >>> from os.path import join
+  >>> path = join(str(getfixture('tmpdir')), 'key.json')
+
+
+We can load the key and forbid the creation if it's not found:
+
+  >>> import pytest
+
+  >>> with pytest.raises(OSError) as exc:
+  ...     key_from_file(path, create=False)
+
+  >>> str(exc.value)
+  'Key file could not be found.'
+
+
+It doesn't not exist, an OSError is raised.
+let's try with the creation flag:
+
+  >>> key = key_from_file(path, create=True)
+  >>> key
+  <jwcrypto.jwk.JWK object at ...>
+
+
+The path is now created. Let's see what's in it:
+
+  >>> with open(path) as fd:
+  ...     print(fd.read())
+  {"k":"...","kty":"oct"}
+
+
+We can load it without the creation flag, of course :
+
+  >>> key = key_from_file(path, create=False)
+  >>> key
+  <jwcrypto.jwk.JWK object at ...>

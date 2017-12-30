@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler
 
 
+load_key = JWTHandler.load_key
+
+
 def key_from_file(path, create=True):
     fullpath = os.path.abspath(path)
     if not os.path.isfile(fullpath):
