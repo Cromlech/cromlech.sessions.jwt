@@ -4,8 +4,7 @@ import os
 from functools import wraps
 from biscuits import parse, Cookie
 from datetime import datetime, timedelta
-from cromlech.jwt.components import JWTService, JWTHandler
-
+from cromlech.jwt.components import JWTService, JWTHandler, ExpiredToken
 
 load_key = JWTHandler.load_key
 
@@ -40,9 +39,13 @@ class JWTCookieSession(JWTService):
             morsels = parse(cookie)
             token = morsels.get(self.cookie_name)
             if token is not None:
-                session_data = self.check_token(token)
-                # maybe we want an error handling here.
-                return session_data
+                try:
+                    session_data = self.check_token(token)
+                    return session_data
+                except ExpiredToken:
+                    # The token is expired.
+                    # We'll return an empty session.
+                    pass
         return {}
 
     def check_cookie_size(self, value, maxsize=4096):
