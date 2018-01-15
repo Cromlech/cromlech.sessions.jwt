@@ -14,7 +14,7 @@ def key_from_file(path, create=True):
     if not os.path.isfile(fullpath):
         if create:
             key = JWTHandler.generate_key()
-            with open(fullpath, 'w+', encoding="utf-8") as keyfile:
+            with open(fullpath, 'w+') as keyfile:
                 keyfile.write(JWTHandler.dump_key(key))
             return key
         else:

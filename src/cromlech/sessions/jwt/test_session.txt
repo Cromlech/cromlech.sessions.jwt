@@ -68,13 +68,13 @@ method of the `JWTCookieSession` instance:
     >>> result.status
     '200 OK'
     >>> result.body
-    b'/foo'
+    '/foo'
     
     >>> result = wsgi_app.get('/bar')
     >>> result.status
     '200 OK'
     >>> result.body
-    b'/foo, /bar'
+    '/foo, /bar'
 
     >>> import pytest
     >>> with pytest.raises(ValueError) as invalid:
@@ -87,7 +87,7 @@ appear in the history :
     >>> result.status
     '200 OK'
     >>> result.body
-    b'/foo, /bar, /baz'
+    '/foo, /bar, /baz'
 
 
 Lower level analysis
@@ -104,7 +104,7 @@ Let's manually unpile this, to understand what's going on :
 
     >>> cookie = wsgi_app.cookies['my_cookie_name']
     >>> sorted(session_wrapper.check_token(cookie).keys())
-    ['exp', 'uid', 'visited']
+    [u'exp', u'uid', u'visited']
 
 We can see that our session also has metadatas : the `uid` that is the
 unique identifier of the session and an `exp` property that is the
@@ -133,7 +133,7 @@ cookie overflows :
     ...     session = environ['my_session']
     ...     session['data'] = 'Some heavy load' * 1000
     ...     start_response('200 OK', [('Content-type', 'text/plain')])
-    ...     return [b', '.join((v.encode('utf-8') for v in visited))]
+    ...     return [', '.join((v.encode('utf-8') for v in visited))]
 
     >>> wsgi_app = TestApp(session_wrapper(overflowing_app))
     >>> with pytest.raises(ValueError) as invalid:
