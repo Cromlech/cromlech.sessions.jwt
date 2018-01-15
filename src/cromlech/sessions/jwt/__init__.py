@@ -37,10 +37,10 @@ class JWTCookieSession(JWTService):
         if 'HTTP_COOKIE' in environ:
             cookie = Cookie.SimpleCookie()
             cookie.load(environ['HTTP_COOKIE'])
-            token = cookie[self.cookie_name].value
+            token = cookie.get(self.cookie_name)
             if token is not None:
                 try:
-                    session_data = self.check_token(token)
+                    session_data = self.check_token(token.value)
                     return session_data
                 except ExpiredToken:
                     # The token is expired.
