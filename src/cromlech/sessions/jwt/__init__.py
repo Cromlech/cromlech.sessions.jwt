@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import Cookie
 from functools import wraps
-from biscuits import parse, Cookie
 from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler, ExpiredToken
 
@@ -34,10 +34,10 @@ class JWTCookieSession(JWTService):
         JWTService.__init__(self, key, JWTHandler, lifetime=lifetime)
 
     def extract_session(self, environ):
-        cookie = environ.get('HTTP_COOKIE')
-        if cookie is not None:
-            morsels = parse(cookie)
-            token = morsels.get(self.cookie_name)
+        if 'HTTP_COOKIE' in environ:
+            cookie = Cookie.SimpleCookie()
+            cookie.load(environ['HTTP_COOKIE'])
+            token = cookie[self.cookie_name].value
             if token is not None:
                 try:
                     session_data = self.check_token(token)
@@ -62,12 +62,18 @@ class JWTCookieSession(JWTService):
                 path = environ['SCRIPT_NAME'] or '/'
                 domain = environ['HTTP_HOST'].split(':', 1)[0]
                 expires = datetime.now() + timedelta(minutes=self.lifetime)
-                cookie = Cookie(
-                    name=self.cookie_name, value=token, path=path,
-                    domain=domain, expires=expires)
-                cookie_value = str(cookie)
-                self.check_cookie_size(cookie_value)
-                headers.append(('Set-Cookie', cookie_value))
+
+                cookie = Cookie.SimpleCookie()
+                cookie[self.cookie_name] = token
+                cookie[self.cookie_name]["Path"] = path
+                cookie[self.cookie_name]["Domain"] = domain
+                cookie[self.cookie_name]["Expires"] = expires
+
+                for morsel in cookie.values():
+                    cookie_value = morsel.OutputString()
+                    self.check_cookie_size(cookie_value)
+                    headers.append(("set-cookie", cookie_value))
+
                 return start_response(status, headers, exc_info)
 
             session = self.extract_session(environ)

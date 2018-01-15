@@ -11,7 +11,6 @@ history = open(join('docs', 'HISTORY.txt')).read()
 install_requires = [
     'setuptools',
     'cromlech.jwt',
-    'biscuits',
 ]
 
 tests_require = [
