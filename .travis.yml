@@ -3,9 +3,7 @@ language: python
 # with next we get on container based infrastructure, this enables caching
 sudo: false
 python:
-  - 3.4
-  - 3.5
-  - 3.6
+  - 2.7
 
 cache:
   pip: true
