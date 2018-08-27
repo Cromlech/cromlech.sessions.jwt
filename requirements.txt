@@ -1,2 +1,2 @@
-git+https://github.com/Cromlech/cromlech.jwt.git#egg=cromlech.jwt
+cromlech.jwt >= 0.1
 biscuits >= 0.1.1
