@@ -58,15 +58,21 @@ class JWTCookieSession(JWTService):
 
             def session_start_response(status, headers, exc_info=None):
                 session_data = environ[self.environ_key]
-
-                # DO NOT SET A COOKIN ON ANONYMOUS USERS
-                if not session_data :
-                   return start_response(status, headers, exc_info)
-
-                token = self.generate(session_data)
                 path = environ['SCRIPT_NAME'] or '/'
                 domain = environ['HTTP_HOST'].split(':', 1)[0]
-                expires = datetime.now() + timedelta(minutes=self.lifetime)
+
+                #if there is no registered user
+                #then delete the cookie on the client.
+                #by setting the contents to be teh empty string
+                #and the expires time to be now.
+                
+                if  session_data:
+                   token = self.generate(session_data)
+                   expires = datetime.now() + timedelta(minutes=self.lifetime)
+                else:
+                   token =''
+                   expires = datetime.now()
+
                 cookie = Cookie(
                     name=self.cookie_name, value=token, path=path,
                     domain=domain, expires=expires)
