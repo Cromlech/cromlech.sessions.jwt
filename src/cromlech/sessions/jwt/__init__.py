@@ -63,7 +63,7 @@ class JWTCookieSession(JWTService):
 
                 #if there is no registered user
                 #then delete the cookie on the client.
-                #by setting the contents to be teh empty string
+                #by setting the contents to be the empty string
                 #and the expires time to be now.
                 
                 if  session_data:
