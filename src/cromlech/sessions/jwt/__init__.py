@@ -44,7 +44,7 @@ class JWTCookieSession(JWTService):
                 try:
                     session_data = self.check_token(token)
                     return session_data
-                except ExpiredToken:
+                except (ExpiredToken,InvalidToken) as e:
                     # The token is expired.
                     # We'll return an empty session.
                     pass
@@ -82,11 +82,8 @@ class JWTCookieSession(JWTService):
                 self.check_cookie_size(cookie_value)
                 headers.append(('Set-Cookie', cookie_value))
                 return start_response(status, headers, exc_info)
-            try:
-               session = self.extract_session(environ)
-            except InvalidToken:
-               setSession()
-               session = getSession()                       
+            
+            session = self.extract_session(environ)
             environ[self.environ_key] = session
             return app(environ, session_start_response)
         return jwt_session_wrapper
