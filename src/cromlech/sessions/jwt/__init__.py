@@ -82,7 +82,6 @@ class JWTCookieSession(JWTService):
                 self.check_cookie_size(cookie_value)
                 headers.append(('Set-Cookie', cookie_value))
                 return start_response(status, headers, exc_info)
-            import pdb; pdb.set_trace()
             try:
                session = self.extract_session(environ)
             except InvalidToken:
