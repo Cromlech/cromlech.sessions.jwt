@@ -5,6 +5,8 @@ from functools import wraps
 from biscuits import parse, Cookie
 from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler, ExpiredToken
+from cromlech.browser import getSession,setSession
+from cromlech.jwt import InvalidToken
 
 load_key = JWTHandler.load_key
 
@@ -80,8 +82,12 @@ class JWTCookieSession(JWTService):
                 self.check_cookie_size(cookie_value)
                 headers.append(('Set-Cookie', cookie_value))
                 return start_response(status, headers, exc_info)
-
-            session = self.extract_session(environ)
+            import pdb; pdb.set_trace()
+            try:
+               session = self.extract_session(environ)
+            except InvalidToken:
+               setSession()
+               session = getSession()                       
             environ[self.environ_key] = session
             return app(environ, session_start_response)
         return jwt_session_wrapper
