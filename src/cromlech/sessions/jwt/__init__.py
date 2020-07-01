@@ -5,6 +5,8 @@ from functools import wraps
 from biscuits import parse, Cookie
 from datetime import datetime, timedelta
 from cromlech.jwt.components import JWTService, JWTHandler, ExpiredToken
+from cromlech.browser import getSession,setSession
+from cromlech.jwt import InvalidToken
 
 load_key = JWTHandler.load_key
 
@@ -42,7 +44,7 @@ class JWTCookieSession(JWTService):
                 try:
                     session_data = self.check_token(token)
                     return session_data
-                except ExpiredToken:
+                except (ExpiredToken,InvalidToken) as e:
                     # The token is expired.
                     # We'll return an empty session.
                     pass
@@ -58,10 +60,21 @@ class JWTCookieSession(JWTService):
 
             def session_start_response(status, headers, exc_info=None):
                 session_data = environ[self.environ_key]
-                token = self.generate(session_data)
                 path = environ['SCRIPT_NAME'] or '/'
                 domain = environ['HTTP_HOST'].split(':', 1)[0]
-                expires = datetime.now() + timedelta(minutes=self.lifetime)
+
+                #if there is no registered user
+                #then delete the cookie on the client.
+                #by setting the contents to be the empty string
+                #and the expires time to be now.
+                
+                if  session_data:
+                   token = self.generate(session_data)
+                   expires = datetime.now() + timedelta(minutes=self.lifetime)
+                else:
+                    token =self.generate({})
+                    expires = datetime(2000,1,1)
+
                 cookie = Cookie(
                     name=self.cookie_name, value=token, path=path,
                     domain=domain, expires=expires)
@@ -69,7 +82,7 @@ class JWTCookieSession(JWTService):
                 self.check_cookie_size(cookie_value)
                 headers.append(('Set-Cookie', cookie_value))
                 return start_response(status, headers, exc_info)
-
+            
             session = self.extract_session(environ)
             environ[self.environ_key] = session
             return app(environ, session_start_response)
